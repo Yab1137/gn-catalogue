@@ -1,0 +1,19 @@
+name: Build catalogue
+on:
+  push:
+    paths: ["data/**", "photos/**", "strips/**", "build.py"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt && python build.py
+      - name: Commit generated site
+        run: |
+          git config user.name "catalogue-bot"; git config user.email "bot@users.noreply.github.com"
+          git add site && (git diff --cached --quiet || git commit -m "Rebuild catalogue" && git push)
